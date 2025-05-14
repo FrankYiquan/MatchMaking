@@ -6,9 +6,9 @@ import ddb from '@/lib/dynamo'; // DynamoDB client
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const {name, email, level } = body;
+  const {name, email, rating } = body;
 
-  if (!name || !email || !level) {
+  if (!name || !email || !rating) {
     return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
   }
 
@@ -18,8 +18,8 @@ export async function POST(request: Request) {
       Item: {
         email,
         name,
-        level,
-        createdAt: new Date().toISOString(),
+        rating,
+        matches: []
       },
     });
 
