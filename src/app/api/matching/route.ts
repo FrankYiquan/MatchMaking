@@ -1,4 +1,4 @@
-import ddb from '@/lib/dynamo'; // DynamoDB client
+import ddb from '@/src/lib/dynamo';
 import { AppendNewMatchId, CheckAndSet, Insert } from '@/src/services/matchServices';
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { NextRequest } from 'next/server';

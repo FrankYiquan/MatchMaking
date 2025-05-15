@@ -1,7 +1,20 @@
+import { auth0 } from "@/src/lib/auth0"
 
+export default async function Home() {
+  const session = await auth0.getSession()
 
-export default function Home() {
+  if (!session) {
+    return (
+      <main>
+        <a href="/auth/login?screen_hint=signup">Sign up</a>
+        <a href="/auth/login">Log in</a>
+      </main>
+    )
+  }
+
   return (
-   <div>Hellow world</div>
-  );
+    <main>
+      <h1>Welcome, {session.user.name}!</h1>
+    </main>
+  )
 }

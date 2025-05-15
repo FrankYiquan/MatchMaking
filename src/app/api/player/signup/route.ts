@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
-import ddb from '@/lib/dynamo'; // DynamoDB client
+import ddb from '@/src/lib/dynamo';
+
 import bcrypt from 'bcrypt';
 
 

@@ -1,6 +1,6 @@
 import { PutItemCommand, DeleteItemCommand, UpdateItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import ddb from '@/lib/dynamo'; // DynamoDB client
+import ddb from '@/src/lib/dynamo';
 import WebSocket from 'ws';
 
 
