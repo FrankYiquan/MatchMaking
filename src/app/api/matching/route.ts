@@ -59,7 +59,7 @@ export async function POST(req: NextRequest ){
             //   date: date,  // Just store the date as a string
             //   startEmail: startEmail,
             // }
-            // const socketUrl = ""
+            // const socketUrl = "" // need to fill in address
             // const checkDecided = await waitForDecided(waitKey, socketUrl)
 
             // if (checkDecided){
