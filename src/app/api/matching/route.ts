@@ -54,6 +54,18 @@ export async function POST(req: NextRequest ){
             };
             
             await Insert(futureMatch, "MatchRequest")
+            // have a for loop keep checking the status for 15 seconds
+            // const waitKey = {
+            //   date: date,  // Just store the date as a string
+            //   startEmail: startEmail,
+            // }
+            // const socketUrl = ""
+            // const checkDecided = await waitForDecided(waitKey, socketUrl)
+
+            // if (checkDecided){
+            //   return Response.json({ message: "New matches has been created" }, { status: 200 })
+            // }
+
             return Response.json({ message: "No matches found" }, { status: 200 })
         }
     }catch (err){
@@ -96,7 +108,7 @@ export async function POST(req: NextRequest ){
     await Insert(newMatch, "Match")
 
 
-    //delete the matched request
+    //set the matched request to be decided 
     const delteKey = {
       date: firstMatch.date.S ,
       startEmail: firstMatch.startEmail.S,
@@ -109,6 +121,8 @@ export async function POST(req: NextRequest ){
     }
     await AppendNewMatchId(newMatch.email_1, matchId)
     await AppendNewMatchId(newMatch.email_2, matchId)
+
+    //email here
 
     return Response.json({ message: "New Matches has been created" }, { status: 200 })
   }

@@ -1,6 +1,8 @@
-import { PutItemCommand, DeleteItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { PutItemCommand, DeleteItemCommand, UpdateItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import ddb from '@/lib/dynamo'; // DynamoDB client
+import WebSocket from 'ws';
+
 
 
 export async function Insert(item: object, tableName: string) {
@@ -100,4 +102,63 @@ export async function AppendNewMatchId(email: string, matchID: string) {
     await ddb.send(command);
   }
 
+  export function waitForDecided(key: object, socketUrl: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(socketUrl);
+  
+      const MAX_ATTEMPTS = 3;
+      const INTERVAL_MS = 5000;
+  
+      ws.on('open', () => {
+        console.log("WebSocket connection opened");
+  
+        let attempt = 0;
+  
+        const interval = setInterval(async () => {
+          attempt++;
+  
+          try {
+            const result = await ddb.send(new GetItemCommand({
+              TableName: "MatchRequest",
+              Key: marshall(key),
+            }));
+  
+            const decidedAttr = result.Item?.decided?.BOOL ?? false;
+  
+            ws.send(JSON.stringify({ status: decidedAttr }));
+  
+            if (decidedAttr) {
+              clearInterval(interval);
+              ws.send(JSON.stringify({ done: true }));
+              ws.close();
+              resolve(true);  // resolves promise with true
+            }
+  
+          } catch (error) {
+            console.error("DynamoDB error:", error);
+            ws.send(JSON.stringify({ error: true }));
+            // Optional: reject(error);
+            // or keep trying
+          }
+  
+          if (attempt >= MAX_ATTEMPTS) {
+            clearInterval(interval);
+            ws.send(JSON.stringify({ done: true }));
+            ws.close();
+            resolve(false);  // resolves promise with false since max attempts reached
+          }
+        }, INTERVAL_MS);
+      });
+  
+      ws.on('error', (err) => {
+        console.error("WebSocket error:", err);
+        reject(err);  // reject promise on WS error
+      });
+  
+      ws.on('close', () => {
+        console.log("WebSocket connection closed");
+      });
+    });
+  }
+  
  
