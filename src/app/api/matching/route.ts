@@ -3,7 +3,8 @@ import { AppendNewMatchId, CheckAndSet, Insert } from '@/src/services/matchServi
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { NextRequest } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-
+import { waitForDecided } from '@/src/services/matchServices';
+import { getPlayerData, getMatchPerPlayer } from '@/src/services/profileDataFetch';
 
 export async function POST(req: NextRequest ){
 
@@ -54,17 +55,34 @@ export async function POST(req: NextRequest ){
             };
             
             await Insert(futureMatch, "MatchRequest")
-            // have a for loop keep checking the status for 15 seconds
-            // const waitKey = {
-            //   date: date,  // Just store the date as a string
-            //   startEmail: startEmail,
-            // }
-            // const socketUrl = "" // need to fill in address
-            // const checkDecided = await waitForDecided(waitKey, socketUrl)
+            //have a for loop keep checking the status for 15 seconds
+            const waitKey = {
+              date: date,  // Just store the date as a string
+              startEmail: startEmail,
+            }
+            const checkDecided = await waitForDecided(waitKey)
 
-            // if (checkDecided){
-            //   return Response.json({ message: "New matches has been created" }, { status: 200 })
-            // }
+            if (checkDecided){
+              const player = await getPlayerData(email)
+              const latestMatchID = player?.matches?.length
+                ? player.matches[player.matches.length - 1]
+                : null;
+              if (latestMatchID != null){
+                //query the match data
+                const match = await getMatchPerPlayer([latestMatchID])
+                const matchData = match[0]
+                const opponentEmail = matchData.email_1 === email ? matchData.email_2 : matchData.email_1;
+                const startTime = matchData.startTime
+
+                const earlymatchObject = {
+                  email: opponentEmail,
+                  startTime: startTime,
+                }
+
+                return Response.json({ message: "New Matches has been created", match: earlymatchObject}, { status: 201 })
+
+              }
+            }
 
             return Response.json({ message: "No matches found" }, { status: 200 })
         }
@@ -83,12 +101,12 @@ export async function POST(req: NextRequest ){
 
     //compare start time, choose the later starttime as the actual start time 
     // Ensure both values are Date objects
-    const requestedStartTime = new Date(startTime); // startTime from req body
+    const requestedStartTime = startTime; // startTime from req body
     if (!firstMatch.startTime || !firstMatch.startTime.S) {
       throw new Error("Missing startTime in firstMatch");
     }
     
-    const matchStartTime = new Date(firstMatch.startTime.S); // unwrap DynamoDB value
+    const matchStartTime = firstMatch.startTime.S; // unwrap DynamoDB value
 
     // Pick the later start time
     let actualStartTime = requestedStartTime;
@@ -97,8 +115,8 @@ export async function POST(req: NextRequest ){
     }
 
     const newMatch = {
-      matchID: matchId,
-      startTime: actualStartTime.toISOString(),
+      MatchID: matchId,
+      startTime: actualStartTime,
       email_1: email,
       email_2: opponentEmail, // Now definitely a string
       winner:  "" ,
@@ -124,7 +142,12 @@ export async function POST(req: NextRequest ){
 
     //email here
 
-    return Response.json({ message: "New Matches has been created" }, { status: 200 })
+    const matchObject = {
+      email: opponentEmail,
+      startTime: actualStartTime,
+    }
+
+    return Response.json({ message: "New Matches has been created", match: matchObject}, { status: 201 })
   }
 }
 

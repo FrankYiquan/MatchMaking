@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export default function CircleBadge() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState<string | null> (null)
 
   useEffect(() => {
     async function checkLoginStatus() {
@@ -13,6 +14,7 @@ export default function CircleBadge() {
         if (res.ok) {
           const data = await res.json();
           setIsLoggedIn(!!data); // Logged in if user exists
+          setEmail(data.email)
         }
       } catch (error) {
         console.error("Error checking login status:", error);
@@ -39,10 +41,14 @@ export default function CircleBadge() {
       </div>
       <ul
         tabIndex={0}
-        className="menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 w-40 p-2 shadow z-10"
+        className="menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 w-50 p-2 shadow z-10 text-center"
       >
         {isLoggedIn ? (
-          <li><a href="/auth/logout">Logout</a></li>
+          <>
+            <div className="text-xs text-gray-400">{email}</div>
+            <li><a href="/auth/logout">Logout</a></li>
+          </>
+          
         ) : (
           <li><a href="/auth/login">Login</a></li>
         )}
