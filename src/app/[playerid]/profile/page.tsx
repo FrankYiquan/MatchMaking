@@ -2,7 +2,7 @@ import { auth0 } from "@/src/lib/auth0";
 import { Card, CardContent } from "@/components/ui/card";
 import { getMatchPerPlayer, getPlayerData } from "@/src/services/profileDataFetch";
 import BeginMatchButton from "../../component/redirectPage";
-
+import WinnerSelector from "../../component/winnerSelector";
 
 
 export default async function Home() {
@@ -136,6 +136,7 @@ export default async function Home() {
                 <th className="px-4 py-2 text-left">Date</th>
                 <th className="px-4 py-2 text-left">Start Time</th>
                 <th className="px-4 py-2 text-left">Opponent</th>
+                <th className="px-4 py-2 text-left">Select Winner</th>
               </tr>
             </thead>
             <tbody>
@@ -143,14 +144,22 @@ export default async function Home() {
                 const opponent =
                     match.email_1 === session?.user?.email ? match.email_2 : match.email_1;
                 const [date2, time2] = match.startTime.split("T")
-
+              
                 return (
                     <tr key={match.MatchID} className="border-t">
-                    <td className="px-4 py-2">{match.MatchID}</td>
-                    <td className="px-4 py-2">{date2}</td>
-                    <td className="px-4 py-2">{time2}</td>
-                    <td className="px-4 py-2">{opponent}</td>
-                    </tr>
+                        <td className="px-4 py-2">{match.MatchID}</td>
+                        <td className="px-4 py-2">{date2}</td>
+                        <td className="px-4 py-2">{time2}</td>
+                        <td className="px-4 py-2">{opponent}</td>
+                        <td className="px-4 py-2">
+                            <WinnerSelector
+                                matchID={match.MatchID}
+                                time={match.startTime}
+                                email1={match.email_1}
+                                email2={match.email_2}
+                            />
+                        </td>
+                 </tr>
                 );
                 })}
             </tbody>
