@@ -29,6 +29,7 @@ const WinnerSelector: React.FC<WinnerSelectorProps> = ({ matchID, time, email1, 
             body: JSON.stringify({
               matchID,
               winner: selectedWinner,
+              loser: email1 == selectedWinner ? email2 : email1
             }),
           });
       setSubmitted(true);
