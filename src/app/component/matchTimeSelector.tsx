@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // ✅ add this for redirect
+import { useRouter } from 'next/navigation'; 
+
 
 const generateTimeOptions = () => {
   const times = [];
@@ -15,9 +16,12 @@ const generateTimeOptions = () => {
   return times;
 };
 
+
 const timeOptions = generateTimeOptions();
 
 const MatchTimeSelector: React.FC = () => {
+  
+  
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
@@ -43,6 +47,21 @@ const MatchTimeSelector: React.FC = () => {
 
   };
 
+  
+
+  useEffect(() => {
+    async function fetchUser() {
+      const res = await fetch("/auth/profile");
+      if (!res.ok) {
+        // Redirect client-side
+        router.push("/");
+        return
+      }
+      // handle success if needed
+    }
+    fetchUser();
+  }, [router]);
+
   useEffect(() => {
     const today = new Date();
     const adjusted = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
@@ -50,6 +69,9 @@ const MatchTimeSelector: React.FC = () => {
       .split('T')[0];
     setLocalDate(adjusted);
   }, []);
+
+
+  
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-8 p-6">

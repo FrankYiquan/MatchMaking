@@ -1,5 +1,5 @@
 import { auth0 } from "@/src/lib/auth0";
-import { ensureUser } from "../services/postloginServices";
+//import { ensureUser } from "../services/postloginServices";
 import { redirect } from 'next/navigation';
 
 
@@ -57,9 +57,9 @@ export default async function Home() {
 
   }
 
-  await ensureUser(session.user.email, session.user.name ?? "");
+  //await ensureUser(session.user.email, session.user.name ?? "");
 
   
-  redirect(`/${userId}/profile`);
+  redirect(`/profile`);
 }
 

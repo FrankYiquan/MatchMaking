@@ -1,13 +1,19 @@
 import { auth0 } from "@/src/lib/auth0";
 import { Card, CardContent } from "@/components/ui/card";
 import { getMatchPerPlayer, getPlayerData } from "@/src/services/profileDataFetch";
-import BeginMatchButton from "../../component/redirectPage";
-import WinnerSelector from "../../component/winnerSelector";
+
+import BeginMatchButton from "../component/redirectPage";
+import WinnerSelector from "../component/winnerSelector";
+import { redirect } from "next/navigation";
+
 
 
 export default async function Home() {
     const session = await auth0.getSession();
-    console.log("user data: ",session?.user)
+    //console.log("user data: ",session?.user)
+    if (!session){
+      redirect("/"); 
+    }
     const playerData = await getPlayerData(session?.user?.email ?? "")
     const matchIDs = playerData?.matches
     const matchData = await getMatchPerPlayer(matchIDs)

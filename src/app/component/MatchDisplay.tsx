@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
+import { useRouter } from 'next/navigation';
 
 const MatchDisplay = () => {
   const searchParams = useSearchParams();
@@ -18,7 +18,9 @@ const MatchDisplay = () => {
   const startTime = searchParams.get("startTime");
   const endTime = searchParams.get("endTime");
   
+  const router = useRouter();
   //const hasFetchedOpponent = useRef(false);
+
 
 
   // Fetch current user's profile
@@ -32,6 +34,8 @@ const MatchDisplay = () => {
           setName(data.nickname);
         } else {
           setEmail(null);
+          router.push("/");
+          return
         }
       } catch (error) {
         console.error("Failed to fetch profile:", error);
